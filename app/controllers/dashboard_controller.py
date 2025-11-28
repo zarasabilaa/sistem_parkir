@@ -167,10 +167,11 @@ def update_user(user_id):
 
     username = request.form.get("username", "").strip()
     email = request.form.get("email", "").strip()
+    role = request.form.get("role", "").strip()
     password = request.form.get("password", "").strip()
 
-    if not username or not email:
-        flash("Username dan email tidak boleh kosong!", "error")
+    if not username or not email or not role:
+        flash("Username, email, dan role tidak boleh kosong!", "error")
         return redirect(url_for("dashboard.profile", edit_id=user_id))
 
     # cek username dipakai user lain
@@ -179,10 +180,12 @@ def update_user(user_id):
         flash("Username sudah digunakan pengguna lain!", "error")
         return redirect(url_for("dashboard.profile", edit_id=user_id))
 
+    # update data
     user.username = username
     user.email = email
+    user.role = role
     if password:
-        user.password = password
+        user.password = password  # kalau bcrypt nanti tinggal ganti hashing
 
     try:
         db.session.commit()
@@ -194,7 +197,7 @@ def update_user(user_id):
     return redirect(url_for("dashboard.profile"))
 
 
-# delete users
+# DELETE USER
 @dashboard_bp.route("/profile/delete/<int:user_id>", methods=["POST"])
 @login_required
 def delete_user(user_id):
